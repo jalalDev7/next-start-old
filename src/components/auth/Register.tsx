@@ -21,6 +21,8 @@ import {
 import Link from "next/link";
 import FormError from "../notifications/FormError";
 import FormSuccess from "../notifications/FormSuccess";
+import { signIn } from "next-auth/react";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 const Register = () => {
   const [isPending, startTransition] = useTransition();
@@ -30,7 +32,7 @@ const Register = () => {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
-      username: "",
+      name: "",
       password: "",
       rePassword: "",
     },
@@ -45,6 +47,9 @@ const Register = () => {
       });
     });
   };
+  const providerClick = (provider: string) => {
+    signIn(provider, { callbackUrl: DEFAULT_LOGIN_REDIRECT });
+  };
   return (
     <div className="flex flex-col w-full items-center justify-center h-full ">
       <FaCircleUser className="size-16" />
@@ -56,16 +61,16 @@ const Register = () => {
           <div className="flex flex-col w-full items-start justify-start gap-2">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel className="font-semibold">Username :</FormLabel>
+                  <FormLabel className="font-semibold">Name :</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPending}
                       type="text"
-                      placeholder="Username"
+                      placeholder="John smith"
                       className=""
                     />
                   </FormControl>
@@ -142,14 +147,20 @@ const Register = () => {
       </Form>
 
       <div className="flex flex-col gap-2 mt-4 w-full">
-        <div className="flex flex-row gap-2 items-center justify-center border border-primary rounded-lg p-2 w-full cursor-pointer">
+        <button
+          className="flex flex-row gap-2 items-center justify-center border border-primary rounded-lg p-2 w-full cursor-pointer"
+          onClick={() => providerClick("google")}
+        >
           <GoogleSVG className="size-6" />
           <h2>Register with google</h2>
-        </div>
-        <div className="flex flex-row gap-2 items-center justify-center border border-primary rounded-lg p-2 w-full cursor-pointer">
+        </button>
+        <button
+          className="flex flex-row gap-2 items-center justify-center border border-primary rounded-lg p-2 w-full cursor-pointer"
+          onClick={() => providerClick("facebook")}
+        >
           <FacebookSVG className="size-6" />
           <h2>Register with facebook</h2>
-        </div>
+        </button>
         <Link
           href="/auth/login"
           className="flex items-center mt-4 text-sm font-semibold text justify-center w-full underline"

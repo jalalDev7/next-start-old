@@ -12,6 +12,12 @@ export const {
   signOut,
 } = NextAuth({
   callbacks: {
+    async signIn({ user }) {
+      if (!user.id) return false;
+      const checkUser = await getUserById(user.id);
+      //if (!checkUser || !checkUser.emailVerified) return false;
+      return true;
+    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -27,7 +33,7 @@ export const {
       const user = await getUserById(token.sub);
       if (!user) return token;
       token.role = user.role;
-      token.name = user.username;
+      token.name = user.name;
       return token;
     },
   },

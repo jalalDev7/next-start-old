@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserByEmail, getUserByUsername } from "@/data/user";
+import { getUserByEmail } from "@/data/user";
 import { prisma } from "@/db/prisma";
 import { registerSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
@@ -11,7 +11,7 @@ export const register = async (values: z.infer<typeof registerSchema>) => {
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
-  const { username, email, password, rePassword } = validatedFields.data;
+  const { name, email, password, rePassword } = validatedFields.data;
 
   if (password !== rePassword) {
     return { error: "Please make sure both passwords are the same." };
@@ -19,17 +19,13 @@ export const register = async (values: z.infer<typeof registerSchema>) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const checkUsername = await getUserByUsername(username);
-  if (checkUsername) {
-    return { error: "Username already existe" };
-  }
   const checkEmail = await getUserByEmail(email);
   if (checkEmail) {
     return { error: "Email already existe" };
   }
   await prisma.user.create({
     data: {
-      username: username,
+      name: name,
       email: email,
       password: hashedPassword,
     },
