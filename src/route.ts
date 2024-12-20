@@ -10,7 +10,12 @@ export const publicRoutes = ["/"];
  * these routes wil redirect login users to dashbord or settings
  * @type {string[]}
  */
-export const authRoutes = ["/api/auth/signin", "/auth/login", "/auth"];
+export const authRoutes = [
+  "/api/auth/signin",
+  "/auth/login",
+  "/auth/register",
+  "/auth",
+];
 
 /**
  * the prefix for API authentication prefix
