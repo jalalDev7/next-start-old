@@ -1,42 +1,40 @@
 import type { NextAuthConfig } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import Credentials from "next-auth/providers/credentials";
+import { loginSchema } from "./schemas";
+import { getUserByEmail, getUserByUsername } from "./data/user";
+import bcrypt from "bcryptjs";
+type dbUser = {
+  id: string;
+  email: string | null;
+  image: string | null;
+  username: string | null;
+  password: string | null;
+  emailVerified: Date | null;
+} | null;
 
 export default {
   providers: [
-    CredentialsProvider({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
-      name: "Credentials",
-      // The credentials is used to generate a suitable form on the sign in page.
-      // You can specify whatever fields you are expecting to be submitted.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" },
-      },
+    Credentials({
       async authorize(credentials) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-        const User = {
-          id: "1",
-          name: "admin",
-          password: "123456",
-          email: "email@domain.com",
-        };
+        const validatedFields = loginSchema.safeParse(credentials);
 
-        if (
-          credentials &&
-          credentials.username === User.name &&
-          credentials.password === User.password
-        ) {
-          return User;
+        if (validatedFields.success) {
+          let user: dbUser = null;
+          const { password, username } = validatedFields.data;
+          const userByEmail = await getUserByEmail(username);
+          if (!userByEmail) {
+            const userByUsername = await getUserByUsername(username);
+            if (userByUsername) {
+              user = userByUsername;
+            }
+          } else {
+            user = userByEmail;
+          }
+          if (!user) return null;
+          if (!user.password) return null;
+          const passwordMatch = await bcrypt.compare(password, user.password);
+          if (passwordMatch) return user;
         }
-
-        // Return null if user data could not be retrieved
         return null;
       },
     }),

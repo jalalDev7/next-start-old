@@ -12,6 +12,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRole {
+  ADMIN
+  USER
+}
 model Account {
   id                 String  @id @default(cuid())
   userId             String  @map("user_id")
@@ -32,33 +37,17 @@ model Account {
   @@map("accounts")
 }
  
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  @@map("sessions")
-}
  
 model User {
   id            String    @id @default(cuid())
-  name          String?
+  username      String?   @unique
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
+  password      String?
+  role          UserRole @default(USER)
   accounts      Account[]
-  sessions      Session[]
  
   @@map("users")
 }
  
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
- 
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}

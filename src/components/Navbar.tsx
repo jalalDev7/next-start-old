@@ -1,11 +1,9 @@
-"use client";
-import { Loader2 } from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import React from "react";
+import { Button } from "./ui/button";
+import { auth, signOut } from "@/auth";
 
-const Navbar = () => {
-  const { data: session, status } = useSession();
+const Navbar = async () => {
+  const session = await auth();
   return (
     <nav className="flex flex-row items-center justify-between p-2">
       <h1 className="text-2xl font-bold">LOGO ipsum</h1>
@@ -13,21 +11,26 @@ const Navbar = () => {
         <Link href="/">Home</Link>
         <Link href="/dashboard">Dashboard</Link>
         {session && session.user ? (
-          <button
-            className="bg-primary px-4 py-1 rounded-md text-secondary"
-            onClick={() => signOut()}
+          <form
+            action={async () => {
+              "use server";
+              await signOut();
+            }}
           >
-            Sign out
-          </button>
-        ) : status === "loading" ? (
-          <Loader2 className="size-4 animate-spin" />
+            <Button
+              type="submit"
+              className="bg-primary px-4 py-1 rounded-md text-secondary"
+            >
+              Sign out
+            </Button>
+          </form>
         ) : (
-          <button
+          <Link
+            href="/auth/login"
             className="bg-primary px-4 py-1 rounded-md text-secondary"
-            onClick={() => signIn()}
           >
             Sign in
-          </button>
+          </Link>
         )}
       </div>
     </nav>

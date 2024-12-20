@@ -11,6 +11,7 @@ const page = async () => {
         <h1>User name : {user?.user?.name}</h1>
         <h1>User email : {user?.user?.email}</h1>
         <h1>User id : {user?.user?.id}</h1>
+        <h1>User role : {user?.user?.role}</h1>
         <h1>User image : {user?.user?.image}</h1>
       </div>
     </div>
