@@ -11,10 +11,10 @@ export const publicRoutes = ["/"];
  * @type {string[]}
  */
 export const authRoutes = [
-  "/api/auth/signin",
+  "/auth/new-verification",
   "/auth/login",
   "/auth/register",
-  "/auth",
+  "/auth/error",
 ];
 
 /**

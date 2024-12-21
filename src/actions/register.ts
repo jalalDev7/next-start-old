@@ -2,6 +2,8 @@
 
 import { getUserByEmail } from "@/data/user";
 import { prisma } from "@/db/prisma";
+import { sendVerificationEmail } from "@/lib/mail";
+import { generateVerificationToken } from "@/lib/tokens";
 import { registerSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -30,6 +32,8 @@ export const register = async (values: z.infer<typeof registerSchema>) => {
       password: hashedPassword,
     },
   });
-  // TODO send email verification later
-  return { success: "Register success!" };
+
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  return { success: "Confirmation email sent!" };
 };

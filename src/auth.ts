@@ -11,11 +11,31 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error",
+  },
+  events: {
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (!user.id) return false;
+      if (account?.provider !== "credentials") return true;
+
       const checkUser = await getUserById(user.id);
-      //if (!checkUser || !checkUser.emailVerified) return false;
+      if (!checkUser || !checkUser.emailVerified) return false;
+
+      // TODO add 2FA check
       return true;
     },
     async session({ session, token }) {

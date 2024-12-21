@@ -23,8 +23,14 @@ import { loginSchema } from "@/schemas";
 import { login } from "@/actions/login";
 import { signIn } from "next-auth/react";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { useSearchParams } from "next/navigation";
 
 const Login = () => {
+  const searchParam = useSearchParams();
+  const paramError =
+    searchParam.get("error") === "OAuthAccountNotLinked"
+      ? "Email is already in use with different provider!"
+      : "";
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -40,7 +46,7 @@ const Login = () => {
     setSuccess("");
     startTransition(() => {
       login(values).then((data) => {
-        if (data && data.success) setSuccess(data?.success);
+        setSuccess(data.success);
         setError(data.error);
       });
     });
@@ -99,7 +105,7 @@ const Login = () => {
             <Button disabled={isPending} type="submit" className="w-full mt-2">
               Sign in
             </Button>
-            <FormError message={error} />
+            <FormError message={error || paramError} />
             <FormSuccess message={success} />
           </div>
         </form>
