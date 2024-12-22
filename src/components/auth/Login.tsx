@@ -98,6 +98,9 @@ const Login = () => {
                     />
                   </FormControl>
                   <FormMessage />
+                  <Link href="/auth/reset" className="flex text-xs">
+                    Forgot password ?
+                  </Link>
                 </FormItem>
               )}
             />

@@ -1,12 +1,14 @@
+"use server";
 import { prisma } from "@/db/prisma";
 
 export const getVerificationTokenByEmail = async (email: string) => {
   try {
-    await prisma.verificationToken.findFirst({
+    const getToken = await prisma.verificationToken.findFirst({
       where: {
         email,
       },
     });
+    return getToken;
   } catch {
     return null;
   }

@@ -1,4 +1,4 @@
-"use cleint";
+"use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { FaCircleUser } from "react-icons/fa6";
 import FormSuccess from "../notifications/FormSuccess";
@@ -16,7 +16,7 @@ export const NewVerification = () => {
   const [success, setSuccess] = useState<string | undefined>();
 
   const onSubmit = useCallback(() => {
-    if (!getToken) return;
+    if (!getToken) return setError("Missing token!");
     newVerification(getToken)
       .then((data) => {
         setSuccess(data.success);
@@ -33,7 +33,7 @@ export const NewVerification = () => {
     <div className="flex flex-col w-full items-center justify-center h-full ">
       <FaCircleUser className="size-16" />
       <h1 className="text-lg font-semibold mb-4 mt-4">Email verification</h1>
-      {error && success ? (
+      {error || success ? (
         <>
           <FormSuccess message={success} />
           <FormError message={error} />
