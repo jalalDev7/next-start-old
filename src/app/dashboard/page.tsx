@@ -22,6 +22,9 @@ const page = async () => {
           <h1>Role :</h1> {user?.user?.role}
         </div>
         <div className="flex w-full rounded-lg bg-secondary text-primary px-4 py-2 items-center justify-between gap-8">
+          <h1>isOAuth :</h1> {user?.user.isOauth ? "true" : "false"}
+        </div>
+        <div className="flex w-full rounded-lg bg-secondary text-primary px-4 py-2 items-center justify-between gap-8">
           Image :
           {user && user.user.image ? (
             <Image

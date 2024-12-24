@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import authConfig from "@/auth.config";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/db/prisma";
-import { getUserById } from "./data/user";
+import { getAccountById, getUserById } from "./data/user";
 import { UserRole } from "@prisma/client";
 
 export const {
@@ -45,6 +45,8 @@ export const {
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
       }
+      session.user.isOauth = false;
+      if (token.isOauth) session.user.isOauth = true;
 
       return session;
     },
@@ -52,8 +54,11 @@ export const {
       if (!token.sub) return token;
       const user = await getUserById(token.sub);
       if (!user) return token;
+      const existingAccount = await getAccountById(user.id);
+      token.isOauth = !!existingAccount;
       token.role = user.role;
       token.name = user.name;
+
       return token;
     },
   },
