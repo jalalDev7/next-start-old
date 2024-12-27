@@ -1,9 +1,16 @@
-import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/store/home/HeroSection";
+import MaxWidthWrapper from "@/components/store/home/MaxWidthWrapper";
+import Navbar from "@/components/store/home/Navbar";
+import SearchBar from "@/components/store/home/SearchBar";
 
 export default function Home() {
   return (
-    <main className="flex flex-col w-full max-w-[1800px] mx-auto">
-      <Navbar />
-    </main>
+    <MaxWidthWrapper>
+      <section>
+        <Navbar />
+        <HeroSection />
+        <SearchBar />
+      </section>
+    </MaxWidthWrapper>
   );
 }
