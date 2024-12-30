@@ -1,12 +1,14 @@
 import Link from "next/link";
 import React from "react";
-import { MdSpaceDashboard } from "react-icons/md";
+import { MdSpaceDashboard, MdTask } from "react-icons/md";
 import { RiLogoutCircleFill, RiShoppingCartFill } from "react-icons/ri";
 import { AiFillSetting } from "react-icons/ai";
 import { FaCalendarAlt } from "react-icons/fa";
 import { FaCar } from "react-icons/fa6";
 import { signOut } from "@/auth";
 import { BiSolidStore } from "react-icons/bi";
+import { TbTruckReturn } from "react-icons/tb";
+import { PiUserListFill } from "react-icons/pi";
 
 const Sidebar = () => {
   return (
@@ -31,6 +33,13 @@ const Sidebar = () => {
             Reservations
           </Link>
           <Link
+            href="/dashboard/reception"
+            className="flex flex-row gap-2 items-center px-4"
+          >
+            <TbTruckReturn className="size-6" />
+            Reception
+          </Link>
+          <Link
             href="/dashboard/commandes"
             className="flex flex-row gap-2 items-center px-4"
           >
@@ -38,11 +47,25 @@ const Sidebar = () => {
             Commandes
           </Link>
           <Link
-            href="/dashboard"
+            href="/dashboard/vehicules"
             className="flex flex-row gap-2 items-center px-4"
           >
             <FaCar className="size-6" />
             Vehicles
+          </Link>
+          <Link
+            href="/dashboard/vehicules"
+            className="flex flex-row gap-2 items-center px-4"
+          >
+            <MdTask className="size-6" />
+            Taches
+          </Link>
+          <Link
+            href="/dashboard/vehicules"
+            className="flex flex-row gap-2 items-center px-4"
+          >
+            <PiUserListFill className="size-6" />
+            Clients
           </Link>
           <Link
             href="/dashboard"

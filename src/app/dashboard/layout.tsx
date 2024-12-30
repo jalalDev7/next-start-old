@@ -8,7 +8,7 @@ const layout = ({ children }: { children: ReactNode }) => {
       <Sidebar />
       <div className="flex flex-col w-full pl-[250px]">
         <Topbar />
-        <div className="flex flex-col w-full p-4 mt-4 gap-8">{children}</div>
+        <div className="flex flex-col w-full p-8 gap-8">{children}</div>
       </div>
     </div>
   );

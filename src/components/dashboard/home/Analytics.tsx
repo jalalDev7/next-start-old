@@ -3,7 +3,7 @@ import React from "react";
 const Analytics = () => {
   return (
     <section className="flex flex-col w-full">
-      <h1 className="text-2xl font-semibold mb-4">Rapport mensuel</h1>
+      <h1 className="text-xl font-semibold mb-4">Rapport mensuel</h1>
       <div className="flex flex-row items-center w-full gap-4">
         <div className="flex flex-col gap-2 py-2 px-4 w-full bg-secondary border border-primary/15">
           <h3 className="text-lg font-semibold">Commandes confirmee</h3>

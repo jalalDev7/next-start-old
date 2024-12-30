@@ -5,7 +5,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import React from "react";
+import React, { useMemo } from "react";
 import { Label, Pie, PieChart } from "recharts";
 
 const AnalyticsVisitorsSource = () => {
@@ -41,7 +41,7 @@ const AnalyticsVisitorsSource = () => {
       color: "hsl(var(--chart-5))",
     },
   } satisfies ChartConfig;
-  const totalVisitors = React.useMemo(() => {
+  const totalVisitors = useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
   }, []);
   return (

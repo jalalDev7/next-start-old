@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -41,6 +42,7 @@ import { DateRange } from "react-day-picker";
 import { FaRegEdit } from "react-icons/fa";
 import { FaSquarePlus } from "react-icons/fa6";
 import { MdOutlineDeleteSweep } from "react-icons/md";
+import { TbTruckReturn } from "react-icons/tb";
 
 const ReservationList = () => {
   const [date, setDate] = useState<DateRange>();
@@ -131,6 +133,14 @@ const ReservationList = () => {
       </div>
       <div className="flex flex-col w-full bg-secondary border border-primary/15 p-4 mt-8">
         <div className="flex flex-row items-center w-full justify-end gap-4">
+          <Input
+            placeholder="Chercher par nom du vehicule"
+            className="w-[300px] bg-white"
+          />
+          <Input
+            placeholder="Chercher par nom du client"
+            className="w-[300px] bg-white"
+          />
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -168,7 +178,7 @@ const ReservationList = () => {
             </PopoverContent>
           </Popover>
           <Select>
-            <SelectTrigger className="bg-secondary w-[180px]">
+            <SelectTrigger className="bg-white w-[180px]">
               <SelectValue placeholder="Changer le filtre" />
             </SelectTrigger>
             <SelectContent>
@@ -244,9 +254,13 @@ const ReservationList = () => {
                   </div>
                 </TableCell>
                 <TableCell>Afficher informations</TableCell>
-                <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
-                  <FaRegEdit className="size-6 text-blue-500" />
-                  <MdOutlineDeleteSweep className="size-6 text-destructive" />
+                <TableCell className="flex flex-row gap-3 items-center justify-end text-right">
+                  {reservation.statut === "En cours" ? (
+                    <TbTruckReturn className="size-6 text-emerald-500 cursor-pointer " />
+                  ) : null}
+
+                  <FaRegEdit className="size-6 text-blue-500 cursor-pointer" />
+                  <MdOutlineDeleteSweep className="size-6 text-destructive cursor-pointer" />
                 </TableCell>
               </TableRow>
             ))}
