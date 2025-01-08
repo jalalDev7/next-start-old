@@ -1,13 +1,5 @@
 "use client";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+
 import {
   Table,
   TableBody,
@@ -17,34 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FaRegEdit } from "react-icons/fa";
+
 import { MdOutlineDeleteSweep } from "react-icons/md";
 import NewMarque from "./NewMarque";
 import Image from "next/image";
+import { useQuery } from "react-query";
+import { getMaruqes } from "@/actions/marques";
+import LoadingData from "../../LoadingData";
+import NoData from "../../NoData";
+import EditMarque from "./EditMarque";
 
 const MarquesList = () => {
-  const invoices = [
-    {
-      name: "Kia",
-      image: "/kia_logo.webp",
-      totalVehicules: "5",
-    },
-    {
-      name: "Mercedes",
-      image: "/kia_logo.webp",
-      totalVehicules: "3",
-    },
-    {
-      name: "BMW",
-      image: "/kia_logo.webp",
-      totalVehicules: "2",
-    },
-    {
-      name: "Dacia",
-      image: "/kia_logo.webp",
-      totalVehicules: "10",
-    },
-  ];
+  const { data: marques, isLoading } = useQuery("getMarques", getMaruqes);
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row items-center justify-between w-full">
@@ -55,61 +31,47 @@ const MarquesList = () => {
       </div>
       <div className="flex flex-col w-full bg-secondary border border-primary/15 p-4 mt-8">
         <Table>
-          <TableCaption>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </TableCaption>
+          {isLoading ? (
+            <TableCaption>
+              <LoadingData />
+            </TableCaption>
+          ) : !marques ? (
+            <TableCaption>
+              <NoData />
+            </TableCaption>
+          ) : null}
+
           <TableHeader>
             <TableRow>
               <TableHead className="w-[60px]">Image</TableHead>
               <TableHead className="w-[200px]">Nom de la marque</TableHead>
-              <TableHead>Totale vehicules</TableHead>
+              <TableHead>Nombre de vehicules</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((marque, index) => (
-              <TableRow key={`marque-${index}`}>
-                <TableCell>
-                  <Image
-                    src={marque.image}
-                    width={35}
-                    height={35}
-                    alt="image"
-                    className="rounded-full"
-                  />
-                </TableCell>
-                <TableCell>{marque.name}</TableCell>
-                <TableCell>{marque.totalVehicules}</TableCell>
+            {marques
+              ? marques.map((marque, index) => (
+                  <TableRow key={`marque-${index}`}>
+                    <TableCell>
+                      <Image
+                        src={`https://utfs.io/f/${marque.image}`}
+                        width={35}
+                        height={35}
+                        alt="image"
+                        className="rounded-full"
+                      />
+                    </TableCell>
+                    <TableCell>{marque.name}</TableCell>
+                    <TableCell>{marque._count.vehicules}</TableCell>
 
-                <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
-                  <FaRegEdit className="size-6 text-blue-500" />
-                  <MdOutlineDeleteSweep className="size-6 text-destructive" />
-                </TableCell>
-              </TableRow>
-            ))}
+                    <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
+                      <EditMarque marqueOnEdit={marque} />
+                      <MdOutlineDeleteSweep className="size-6 text-destructive" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : null}
           </TableBody>
         </Table>
       </div>

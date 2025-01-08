@@ -15,8 +15,26 @@ datasource db {
 
 enum UserRole {
   ADMIN
+  TEAM
   USER
 }
+enum reservationState {
+  ANNULEE
+  TERMINEE
+  ATTENTE
+  ENCOURS
+}
+enum taskType {
+  MAINTENANCE
+  PEINTURE
+  VIDANGE
+  VIGNETTE
+}
+enum DiscountType {
+  FIXED
+  POURCENTAGE
+}
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String  @map("user_id")
@@ -47,6 +65,8 @@ model User {
   password      String?
   role          UserRole @default(USER)
   accounts      Account[]
+  client        Client[]
+  coupon        Coupon[]
  
   @@map("users")
 }
@@ -67,4 +87,177 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+model Categories {
+  id String @id @default(cuid())
+  name String
+  description String?
+  image String
+  vehicules Vehicule[]
+  @@index([id])
+}
+
+model Marques {
+  id String @id @default(cuid())
+  name String
+  image String
+  vehicules Vehicule[]
+  @@index([id])
+}
+
+model Vehicule {
+  id String @id @default(cuid())
+  name String
+  color String
+  plate String
+  motor String
+  gear String
+  kilo Int
+  nextVidange Int @default(0)
+  images String[]
+  assurance DateTime
+  tax DateTime
+  passengers Int
+  coffre String?
+  finish String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  available Boolean @default(true)
+  price Int
+  busyDays DateTime[]
+
+  reservation Reservation[]
+  reception Reception[]
+  Tasks Tasks[]
+
+  categorie Categories @relation(fields: [cateId], references: [id])
+  cateId String
+  marque Marques @relation(fields: [marqueId], references: [id])
+  marqueId String
+
+  @@index([id])
+}
+
+model Client {
+  id String @id @default(cuid())
+  email String @unique
+  firstName String
+  lastName String
+  address String
+  city String
+  mobile String
+  cid String?
+  permis String?
+  passport String?
+  confirmed Boolean @default(false)
+
+  reservation Reservation[]
+  reception Reception[]
+
+  user User? @relation(fields: [userId], references: [id])
+  userId String? @unique
+
+  @@index([id])
+}
+
+model Reservation {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vehiculeId String
+  clientId String
+  startDate DateTime
+  endDate DateTime
+  daysList DateTime[]
+  state reservationState
+  paymentStatut Boolean @default(false)
+  totalPrice Int
+  pickup String?
+  dropOff String?
+  pickupTime String?
+  dropOffTime String?
+  note String?
+  couponId String?
+  assurance String?
+  limitKm Int?
+
+  reception Reception[]
+ 
+  vehicule Vehicule @relation(fields: [vehiculeId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
+  coupon Coupon? @relation(fields: [couponId], references: [id])
+
+  @@index([id])
+}
+
+model Coupon {
+  id String @id @default(cuid())
+  code          String   @unique 
+  discountType  DiscountType 
+  discountValue Float 
+  maxUsage      Int?
+  usedCount     Int    @default(0) 
+  expirationDate DateTime?
+  isActive      Boolean @default(true) 
+  createdAt     DateTime @default(now()) 
+  updatedAt     DateTime @updatedAt
+
+  reservation Reservation[]
+
+  user User? @relation(fields: [users], references: [id])
+  users         String? 
+
+  @@index([id])
+}
+
+model Reception {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  kilo Int
+  carrosserieCheck Boolean @default(true)
+  carrosserie String?
+  batterieCheck Boolean @default(true)
+  batterie String?
+  amortisseurCheck Boolean @default(true)
+  amortisseur String?
+  freinsCheck Boolean @default(true)
+  freins String?
+  chassierCheck Boolean @default(true)
+  chassier String?
+  pneuxCheck Boolean @default(true)
+  pneux String?
+  feuxCheck Boolean @default(true)
+  feux String?
+  swiglassCheck Boolean @default(true)
+  swiglass String?
+  salonCheck Boolean @default(true)
+  salon String?
+  tableauCheck Boolean @default(true)
+  tableau String?
+  climatiseurCheck Boolean @default(true)
+  climatiseur String?
+
+  Reservation Reservation @relation(fields: [reservationId], references: [id])
+  reservationId String
+  Client Client @relation(fields: [clientId], references: [id])
+  clientId String
+  Vehicule Vehicule @relation(fields: [vehiculeId], references: [id])
+  vehiculeId String
+
+  @@index([id])
+}
+
+model Tasks {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  type taskType
+  state Boolean @default(false)
+  lastDate DateTime?
+  note String?
+
+  Vehicule Vehicule? @relation(fields: [vehiculeId], references: [id])
+  vehiculeId String?
+  
+  @@index([id])
 }

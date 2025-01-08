@@ -33,13 +33,6 @@ const Sidebar = () => {
             Reservations
           </Link>
           <Link
-            href="/dashboard/reception"
-            className="flex flex-row gap-2 items-center px-4"
-          >
-            <TbTruckReturn className="size-6" />
-            Reception
-          </Link>
-          <Link
             href="/dashboard/commandes"
             className="flex flex-row gap-2 items-center px-4"
           >
@@ -54,19 +47,20 @@ const Sidebar = () => {
             Vehicles
           </Link>
           <Link
-            href="/dashboard/vehicules"
-            className="flex flex-row gap-2 items-center px-4"
-          >
-            <MdTask className="size-6" />
-            Taches
-          </Link>
-          <Link
-            href="/dashboard/vehicules"
+            href="/dashboard/clients"
             className="flex flex-row gap-2 items-center px-4"
           >
             <PiUserListFill className="size-6" />
             Clients
           </Link>
+          <Link
+            href="/dashboard/taches"
+            className="flex flex-row gap-2 items-center px-4"
+          >
+            <MdTask className="size-6" />
+            Taches
+          </Link>
+
           <Link
             href="/dashboard"
             className="flex flex-row gap-2 items-center px-4"

@@ -1,13 +1,4 @@
 "use client";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 import {
   Select,
@@ -35,87 +26,22 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { FaSquarePlus } from "react-icons/fa6";
 import Link from "next/link";
+import { useQuery } from "react-query";
+import { getVehicules } from "@/actions/vehicules";
+import LoadingData from "../../LoadingData";
+import NoData from "../../NoData";
+import { differenceInDays } from "date-fns";
+import { useState } from "react";
+import { CalendarIcon } from "lucide-react";
 
 const VehiculesList = () => {
-  const invoices = [
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-    {
-      name: "Kia picanto",
-      image: "/kia_logo.webp",
-      color: "Red",
-      plate: "A 66006",
-      marque: "KIA",
-      category: "Voiture economique",
-      motor: "Diesel",
-      gear: "Manuel",
-      kilo: "250000",
-    },
-  ];
+  const [queryName, setQueryName] = useState<string | undefined>();
+  const [filtre, setFiltre] = useState<string | undefined>();
+  const { data: vehicules, isLoading } = useQuery(
+    ["getVehicules", { queryName, filtre }],
+    () => getVehicules(queryName, filtre)
+  );
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row items-center justify-between w-full">
@@ -124,7 +50,7 @@ const VehiculesList = () => {
           <Link href="/dashboard/vehicules/new">
             <Button className="flex flex-row gap-2 items-center">
               <FaSquarePlus className="size-4" />
-              Nouvelle vehicule
+              Nouveau vehicule
             </Button>
           </Link>
         </div>
@@ -134,89 +60,158 @@ const VehiculesList = () => {
           <Input
             placeholder="Chercher par nom du vehicule"
             className="w-[300px] bg-white"
+            onChange={(e) => setQueryName(e.currentTarget.value)}
           />
-          <Select>
+          <Select onValueChange={(e) => setFiltre(e)}>
             <SelectTrigger className="bg-white w-[180px]">
               <SelectValue placeholder="Changer le filtre" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Statut</SelectLabel>
-                <SelectItem value="apple">En cours</SelectItem>
-                <SelectItem value="banana">Terminer</SelectItem>
-                <SelectItem value="blueberry">Annuler</SelectItem>
+                <SelectItem value="all">Pas de filtre</SelectItem>
+                <SelectLabel>Disponibilte</SelectLabel>
+                <SelectItem value="disponible">Disponible</SelectItem>
+                <SelectItem value="indisponible">Indisponible</SelectItem>
+
+                <SelectLabel>Vidange</SelectLabel>
+                <SelectItem value={"5001"}>Plus de 5000</SelectItem>
+                <SelectItem value="5000">Moins de 5000</SelectItem>
+                <SelectItem value="1">Depasser</SelectItem>
+                <SelectLabel>Vignette</SelectLabel>
+                <SelectItem value="taxPlus">Plus d&apos;un mois</SelectItem>
+                <SelectItem value="taxMoin">Moins d&apos;un mois</SelectItem>
+                <SelectItem value="taxExpire">Expirer</SelectItem>
+                <SelectLabel>Assurance</SelectLabel>
+                <SelectItem value="assurancePlus">
+                  Plus d&apos;un mois
+                </SelectItem>
+                <SelectItem value="assuranceMoin">
+                  Moins d&apos;un mois
+                </SelectItem>
+                <SelectItem value="assuranceExpire">Expirer</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
         <Table>
-          <TableCaption>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </TableCaption>
+          {isLoading ? (
+            <TableCaption>
+              <LoadingData />
+            </TableCaption>
+          ) : !vehicules ? (
+            <TableCaption>
+              <NoData />
+            </TableCaption>
+          ) : null}
+
           <TableHeader>
             <TableRow>
               <TableHead className="w-[60px]">Image</TableHead>
-              <TableHead>Nom</TableHead>
               <TableHead>Marque</TableHead>
-              <TableHead>Categorie</TableHead>
+              <TableHead>Nom</TableHead>
+
               <TableHead>Couleur</TableHead>
               <TableHead>Plate</TableHead>
               <TableHead>Moteur</TableHead>
               <TableHead>Gear</TableHead>
               <TableHead>Kilometrage</TableHead>
+              <TableHead>KM restant</TableHead>
+              <TableHead>Assurance</TableHead>
+              <TableHead>Vignette</TableHead>
+              <TableHead>Disponibilte</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((car, index) => (
-              <TableRow key={`car-${index}`}>
-                <TableCell>
-                  <Image
-                    src={car.image}
-                    width={40}
-                    height={40}
-                    alt="image"
-                    className="rounded-full"
-                  />
-                </TableCell>
-                <TableCell>{car.name}</TableCell>
-                <TableCell>{car.marque}</TableCell>
-                <TableCell>{car.category}</TableCell>
-                <TableCell>{car.color}</TableCell>
-                <TableCell>{car.plate}</TableCell>
-                <TableCell>{car.motor}</TableCell>
-                <TableCell>{car.gear}</TableCell>
-                <TableCell>{car.kilo} Km</TableCell>
+            {vehicules
+              ? vehicules.map((car, index) => (
+                  <TableRow key={`car-${index}`}>
+                    <TableCell>
+                      <Image
+                        src={`https://utfs.io/f/${car.images[0]}`}
+                        width={35}
+                        height={35}
+                        alt="image"
+                        className="rounded-full"
+                      />
+                    </TableCell>
+                    <TableCell>{car.marque.name}</TableCell>
+                    <TableCell>{car.name}</TableCell>
 
-                <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
-                  <FaRegEdit className="size-6 text-blue-500" />
-                  <MdOutlineDeleteSweep className="size-6 text-destructive" />
-                </TableCell>
-              </TableRow>
-            ))}
+                    <TableCell>{car.color}</TableCell>
+                    <TableCell>{car.plate}</TableCell>
+                    <TableCell>{car.motor}</TableCell>
+                    <TableCell>{car.gear}</TableCell>
+                    <TableCell>{car.kilo} Km</TableCell>
+                    <TableCell>
+                      {car.nextVidange < 1000 ? (
+                        <div
+                          className={`flex w-fit px-4 text-white rounded-lg bg-destructive `}
+                        >
+                          {car.nextVidange}
+                        </div>
+                      ) : car.nextVidange < 5000 ? (
+                        <div
+                          className={`flex w-fit px-4 text-white rounded-lg bg-destructive/65 `}
+                        >
+                          {car.nextVidange}
+                        </div>
+                      ) : (
+                        <div
+                          className={`flex w-fit px-4 text-white rounded-lg bg-destructive bg-emerald-500`}
+                        >
+                          {car.nextVidange}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className={`flex w-fit px-4 text-white rounded-lg ${
+                          differenceInDays(car.assurance, new Date()) <= 0
+                            ? "bg-destructive"
+                            : differenceInDays(car.assurance, new Date()) < 31
+                            ? "bg-destructive/65"
+                            : "bg-emerald-500"
+                        }`}
+                      >
+                        {differenceInDays(car.assurance, new Date())} jours
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className={`flex w-fit px-4 text-white rounded-lg ${
+                          differenceInDays(car.tax, new Date()) <= 0
+                            ? "bg-destructive"
+                            : differenceInDays(car.tax, new Date()) < 31
+                            ? "bg-destructive/65"
+                            : "bg-emerald-500"
+                        }`}
+                      >
+                        {differenceInDays(car.tax, new Date())} jours
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div
+                        className={`flex w-fit px-4 text-white rounded-lg ${
+                          !car.available ? "bg-destructive" : "bg-blue-500"
+                        }`}
+                      >
+                        {car.available ? "Disponible" : "Non disponible"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
+                      <Link href={`/dashboard/vehicules/calendar/${car.id}`}>
+                        <CalendarIcon className="size-6 " />
+                      </Link>
+                      <Link href={`/dashboard/vehicules/edit/${car.id}`}>
+                        <FaRegEdit className="size-6 text-blue-500" />
+                      </Link>
+                      <MdOutlineDeleteSweep className="size-6 text-destructive" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : null}
           </TableBody>
         </Table>
       </div>

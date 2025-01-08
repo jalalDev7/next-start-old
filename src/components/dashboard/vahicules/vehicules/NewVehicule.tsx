@@ -38,10 +38,22 @@ import FormError from "@/components/notifications/FormError";
 import Image from "next/image";
 import { MdDeleteForever } from "react-icons/md";
 import { deleteImageByKey } from "@/actions/delete-image";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useQuery, useQueryClient } from "react-query";
+import { getMaruqes } from "@/actions/marques";
+import { getCategories } from "@/actions/categories";
+import { createVehicule } from "@/actions/vehicules";
+import FormSuccess from "@/components/notifications/FormSuccess";
 
 const NewVehicule = () => {
-  const [assurance, setAssurance] = useState<Date>();
-  const [tax, setTax] = useState<Date>();
+  const queryClient = useQueryClient();
+  const marques = useQuery("getMarques", getMaruqes);
+  const categories = useQuery("getCategories", getCategories);
+  const [formError, setFormError] = useState<string | undefined>();
+  const [formSuccess, setFormSuccess] = useState<string | undefined>();
+  const [assurance, setAssurance] = useState<Date | undefined>();
+  const [tax, setTax] = useState<Date | undefined>();
   const finishField = useRef<HTMLInputElement>(null);
   const [finish, setFinish] = useState<string[]>();
   const [images, setImages] = useState<string[]>();
@@ -51,24 +63,45 @@ const NewVehicule = () => {
     resolver: zodResolver(vehiculeSchema),
     defaultValues: {
       assurance: assurance,
-      category: "",
-      coffre: "",
-      color: "",
+      category: undefined,
+      coffre: undefined,
+      color: undefined,
       finish: finish,
-      gear: "",
+      gear: undefined,
       images: images,
-      kilo: 0,
-      marque: "",
-      motor: "",
-      name: "",
+      kilo: undefined,
+      nextVidange: undefined,
+      marque: undefined,
+      motor: undefined,
+      name: undefined,
       passengers: 0,
-      plate: "",
+      plate: undefined,
       tax: tax,
+      available: true,
+      price: undefined,
     },
   });
 
   const onSubmit = (values: z.infer<typeof vehiculeSchema>) => {
-    startTransition(() => console.log("Form values : ", values));
+    startTransition(() => {
+      createVehicule(values).then((res) => {
+        console.log(res);
+        if (res.error) {
+          setFormSuccess(undefined);
+          setFormError(res.error);
+        }
+        if (res.success) {
+          setFormError(undefined);
+          setFormSuccess(res.success);
+          setImages(undefined);
+          setFinish(undefined);
+          setTax(undefined);
+          setAssurance(undefined);
+          form.reset();
+          queryClient.invalidateQueries("getVehicules");
+        }
+      });
+    });
   };
   const addFinish = () => {
     if (finishField.current && finishField.current.value) {
@@ -104,17 +137,27 @@ const NewVehicule = () => {
     });
   };
   useEffect(() => {
-    if (tax) form.setValue("tax", tax);
-    if (assurance) form.setValue("assurance", assurance);
+    if (tax) {
+      form.setValue("tax", tax);
+    } else {
+      form.resetField("tax");
+    }
+    if (assurance) {
+      form.setValue("assurance", assurance);
+    } else {
+      form.resetField("assurance");
+    }
     if (finish) form.setValue("finish", finish);
     if (images) form.setValue("images", images);
   }, [tax, assurance, finish, images, form]);
   return (
     <div className="flex flex-col w-full">
-      <h1 className="text-xl font-semibold">Nouvelle vehicule</h1>
+      <h1 className="text-xl font-semibold">Nouveau vehicule</h1>
       <div className="flex flex-col w-full bg-secondary border border-primary/15 p-4 mt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
+            <FormError message={formError} />
+            <FormSuccess message={formSuccess} />
             <div className="flex flex-row gap-4 py-4">
               <div className="flex flex-col gap-4 w-full">
                 <div className="flex flex-col items-start gap-4">
@@ -124,7 +167,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Nom de la vehicule :
+                          Nom du vehicule :
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -147,7 +190,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Couleur de la vehicule :
+                          Couleur du vehicule :
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -186,29 +229,55 @@ const NewVehicule = () => {
                     )}
                   />
                 </div>
-                <div className="flex flex-col items-start gap-4">
-                  <FormField
-                    control={form.control}
-                    name="kilo"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="font-semibold">
-                          Kilometrage actual :
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            disabled={isPending}
-                            type="number"
-                            placeholder="100000"
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="flex flex-row items-center w-full justify-between gap-2">
+                  <div className="flex flex-col items-start gap-4 w-full">
+                    <FormField
+                      control={form.control}
+                      name="kilo"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="font-semibold">
+                            Kilometrage actual :
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              disabled={isPending}
+                              type="number"
+                              placeholder="100000"
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-col items-start gap-4 w-full">
+                    <FormField
+                      control={form.control}
+                      name="nextVidange"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="font-semibold">
+                            Kilometrage disponible avant le vidange :
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              disabled={isPending}
+                              type="number"
+                              placeholder="200000"
+                              className="w-full"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
+
                 <div className="flex flex-col items-start gap-4">
                   <FormField
                     control={form.control}
@@ -235,12 +304,35 @@ const NewVehicule = () => {
                 <div className="flex flex-col items-start gap-4">
                   <FormField
                     control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="font-semibold">
+                          Prix par jour :
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            disabled={isPending}
+                            type="number"
+                            placeholder="299"
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex flex-col items-start gap-4">
+                  <FormField
+                    control={form.control}
                     name="coffre"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <div className="flex flex-row w-full items-center justify-between">
                           <FormLabel className="font-semibold">
-                            Taille de coffre :
+                            Taille du coffre :
                           </FormLabel>
                           <FormLabel className="text-xs">Facultatif</FormLabel>
                         </div>
@@ -259,6 +351,7 @@ const NewVehicule = () => {
                     )}
                   />
                 </div>
+
                 <div className="flex flex-col items-start gap-4">
                   <FormField
                     control={form.control}
@@ -267,7 +360,7 @@ const NewVehicule = () => {
                       <FormItem className="w-full">
                         <div className="flex flex-row w-full items-center justify-between">
                           <FormLabel className="font-semibold">
-                            Autre option de la vehicule :
+                            Autre options du vehicule :
                           </FormLabel>
                           <FormLabel className="text-xs">Facultatif</FormLabel>
                         </div>
@@ -305,6 +398,40 @@ const NewVehicule = () => {
                     )}
                   />
                 </div>
+                <div className="flex flex-col items-start gap-4">
+                  <FormField
+                    control={form.control}
+                    name="available"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <div className="flex flex-row w-full items-center justify-between">
+                          <FormLabel className="font-semibold">
+                            Vehicule disponibilite :
+                          </FormLabel>
+                        </div>
+                        <div className="flex flex-row items-center w-full gap-2 py-2 px-2">
+                          <FormControl>
+                            <Checkbox
+                              id="availableCheck"
+                              checked={field.value}
+                              onCheckedChange={(e) =>
+                                form.setValue(
+                                  "available",
+                                  e.valueOf() ? true : false
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <Label htmlFor="availableCheck">
+                            Le vehicule est disponible pour le moment
+                          </Label>
+                        </div>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-4 w-full">
                 <div className="flex flex-col items-start gap-4">
@@ -314,7 +441,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Categorie de la vehicule :
+                          Categorie du vehicule :
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -327,12 +454,17 @@ const NewVehicule = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectLabel>Statut</SelectLabel>
-                                <SelectItem value="SUV">SUV</SelectItem>
-                                <SelectItem value="Lux">Lux</SelectItem>
-                                <SelectItem value="Economique">
-                                  Economique
-                                </SelectItem>
+                                {categories && categories.data ? (
+                                  categories.data.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.id}>
+                                      {cat.name}
+                                    </SelectItem>
+                                  ))
+                                ) : categories.isLoading ? (
+                                  <p className="flex w-full items-center justify-center text-base  py-2">
+                                    Chergement des categories...
+                                  </p>
+                                ) : null}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -349,7 +481,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Marque de la vehicule :
+                          Marque du vehicule :
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -362,11 +494,19 @@ const NewVehicule = () => {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="Kia">Kia</SelectItem>
-                                <SelectItem value="Mercedes">
-                                  Mercedes
-                                </SelectItem>
-                                <SelectItem value="BMW">BMW</SelectItem>
+                                <SelectGroup>
+                                  {marques && marques.data ? (
+                                    marques.data.map((mar) => (
+                                      <SelectItem key={mar.id} value={mar.id}>
+                                        {mar.name}
+                                      </SelectItem>
+                                    ))
+                                  ) : marques.isLoading ? (
+                                    <p className="flex w-full items-center justify-center text-base  py-2">
+                                      Chergement des marques...
+                                    </p>
+                                  ) : null}
+                                </SelectGroup>
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -383,7 +523,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Type de carburant :
+                          Type du moteur :
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -399,7 +539,7 @@ const NewVehicule = () => {
                                 <SelectLabel>Mechanique</SelectLabel>
                                 <SelectItem value="Essence">Essence</SelectItem>
                                 <SelectItem value="Diesel">Diesel</SelectItem>
-                                <SelectLabel>Electique</SelectLabel>
+                                <SelectLabel>Electrique</SelectLabel>
                                 <SelectItem value="Electrique">
                                   Electrique
                                 </SelectItem>
@@ -425,7 +565,7 @@ const NewVehicule = () => {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Type de moteur :
+                          Type de transmission :
                         </FormLabel>
                         <FormControl>
                           <Select
@@ -500,7 +640,7 @@ const NewVehicule = () => {
                     render={() => (
                       <FormItem className="w-full">
                         <FormLabel className="font-semibold">
-                          Date fin de vignette :
+                          Date fin de la vignette :
                         </FormLabel>
                         <FormControl>
                           <Popover>
@@ -543,7 +683,7 @@ const NewVehicule = () => {
                       <FormItem className="w-full">
                         <div className="flex flex-row items-center justify-between">
                           <FormLabel className="font-semibold">
-                            Photos de vehicule :
+                            Photos du vehicule :
                           </FormLabel>
                         </div>
                         <FormError message={uploadError} />
@@ -598,7 +738,7 @@ const NewVehicule = () => {
             </div>
             <div className="flex w-full items-end justify-end">
               <Button disabled={isPending} type="submit" className="mt-2">
-                Creer la vehicule
+                Creer nouveau vehicule
               </Button>
             </div>
           </form>

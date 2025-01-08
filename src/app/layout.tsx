@@ -4,12 +4,12 @@ import Providers from "@/components/Providers";
 import { auth } from "@/auth";
 import { Poppins } from "next/font/google";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-poppins",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
+// const poppins = Poppins({
+//   subsets: ["latin"],
+//   display: "swap",
+//   variable: "--font-poppins",
+//   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+// });${poppins.className}
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,8 +23,8 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.className} antialiased bg-slate-200`}>
+    <html lang="en" suppressHydrationWarning={true}>
+      <body className={` antialiased bg-slate-200`}>
         <Providers session={session}>{children}</Providers>
       </body>
     </html>

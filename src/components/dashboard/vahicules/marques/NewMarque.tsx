@@ -1,7 +1,9 @@
 "use client";
 
 import { deleteImageByKey } from "@/actions/delete-image";
+import { createMarque } from "@/actions/marques";
 import FormError from "@/components/notifications/FormError";
+import FormSuccess from "@/components/notifications/FormSuccess";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,9 +31,13 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { FaSquarePlus } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
+import { useQueryClient } from "react-query";
 import { z } from "zod";
 
 const NewMarque = () => {
+  const queryClient = useQueryClient();
+  const [formError, setFormError] = useState<string | undefined>();
+  const [formSuccess, setFormSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const [uploadError, setUploadError] = useState<string | undefined>();
   const [image, setImage] = useState<string | undefined>();
@@ -43,7 +49,21 @@ const NewMarque = () => {
     },
   });
   const onSubmit = (values: z.infer<typeof marqueSchema>) => {
-    startTransition(() => console.log("Form values : ", values));
+    startTransition(() => {
+      createMarque(values).then((res) => {
+        if (res.error) {
+          setFormSuccess(undefined);
+          setFormError(res.error);
+        }
+        if (res.success) {
+          setFormError(undefined);
+          setFormSuccess(res.success);
+          setImage(undefined);
+          form.reset();
+          queryClient.invalidateQueries("getMarques");
+        }
+      });
+    });
   };
   const deleteImage = (img: string) => {
     setUploadError("");
@@ -80,6 +100,8 @@ const NewMarque = () => {
               </SheetDescription>
             </SheetHeader>
             <div className="grid gap-4 py-4">
+              <FormError message={formError} />
+              <FormSuccess message={formSuccess} />
               <div className="flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
@@ -129,9 +151,7 @@ const NewMarque = () => {
                     name="image"
                     render={() => (
                       <FormItem className="w-full">
-                        <FormLabel className="font-semibold">
-                          Description :
-                        </FormLabel>
+                        <FormLabel className="font-semibold">Image :</FormLabel>
                         <FormControl>
                           <UploadDropzone
                             config={{ mode: "auto" }}

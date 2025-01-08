@@ -1,15 +1,5 @@
 "use client";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
-import {
   Table,
   TableBody,
   TableCaption,
@@ -18,25 +8,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FaRegEdit } from "react-icons/fa";
+
 import { MdOutlineDeleteSweep } from "react-icons/md";
 import NewCategorie from "./NewGategorie";
+import { useQuery } from "react-query";
+import { getCategories } from "@/actions/categories";
+import Image from "next/image";
+import NoData from "../../NoData";
+import LoadingData from "../../LoadingData";
+import EditCategorie from "./EditCategorie";
 
 const CategoriesList = () => {
-  const invoices = [
-    {
-      name: "Voitures de luxe",
-      totalVehicules: "5",
-    },
-    {
-      name: "Voitures economique",
-      totalVehicules: "10",
-    },
-    {
-      name: "Motos",
-      totalVehicules: "8",
-    },
-  ];
+  const { data: categories, isLoading } = useQuery(
+    "getCategories",
+    getCategories
+  );
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row items-center justify-between w-full">
@@ -47,51 +34,49 @@ const CategoriesList = () => {
       </div>
       <div className="flex flex-col w-full bg-secondary border border-primary/15 p-4 mt-8">
         <Table>
-          <TableCaption>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </TableCaption>
+          {isLoading ? (
+            <TableCaption>
+              <LoadingData />
+            </TableCaption>
+          ) : !categories ? (
+            <TableCaption>
+              <NoData />
+            </TableCaption>
+          ) : null}
+
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[60px]">Image</TableHead>
               <TableHead className="w-[300px]">Nom de categorie</TableHead>
-              <TableHead>Totale vehicules</TableHead>
+              <TableHead>Nombre de vehicules</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((categories, index) => (
-              <TableRow key={`categorie-${index}`}>
-                <TableCell className="font-medium">{categories.name}</TableCell>
-                <TableCell>{categories.totalVehicules}</TableCell>
+            {categories
+              ? categories.map((categories, index) => (
+                  <TableRow key={`categorie-${index}`}>
+                    <TableCell className="font-medium">
+                      <Image
+                        src={`https://utfs.io/f/${categories.image}`}
+                        width={35}
+                        height={35}
+                        alt="image"
+                        className="rounded-full "
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {categories.name}
+                    </TableCell>
+                    <TableCell>{categories._count.vehicules}</TableCell>
 
-                <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
-                  <FaRegEdit className="size-6 text-blue-500" />
-                  <MdOutlineDeleteSweep className="size-6 text-destructive" />
-                </TableCell>
-              </TableRow>
-            ))}
+                    <TableCell className="flex flex-row gap-2 items-center justify-end text-right">
+                      <EditCategorie catOnEdit={categories} />
+                      <MdOutlineDeleteSweep className="size-6 text-destructive" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : null}
           </TableBody>
         </Table>
       </div>
